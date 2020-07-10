@@ -1,10 +1,12 @@
 #include <iostream>
 #include"chessengine.h"
-
+#include <fstream>
 int turn; // 0 white 1 black
 char m[9][9] = { ' ' };
 
 MATRIX chessBoard;
+static chessEngine ce;
+
 
 using namespace std;
 
@@ -46,6 +48,14 @@ void printBoard()
     }
 }
 
+void saveGame()
+{
+    ofstream gamedata("chess.txt");
+    ce.saveGame(&gamedata);
+    cout << "Game successfully saved";
+    gamedata.close();
+}
+
 COORD input(int sourceInput)
 {
     if (sourceInput)
@@ -54,8 +64,21 @@ COORD input(int sourceInput)
         cout << "\nEnter destination coordinates:";
 
     COORD coord;
-    cin >> coord.x >> coord.y;
+    char x, y;
+    cin >> x >> y;
 
+    if (x >= '1' && x <= '8')
+    {
+        coord.x = x - '0';
+        coord.y = y - '0';
+    }
+    else
+    {
+        if (x == 's')
+            saveGame();
+
+        return input(sourceInput);
+    }
     return coord;
 }
 
@@ -126,24 +149,16 @@ bool notif(int status)
 
 int main()
 {
-    chessEngine ce;
     GAME game;
-    
-    int init = ce.gameSetup(1, game, &chessBoard);
+    ifstream gamedata ("chess.txt");
+    int init = ce.gameSetup(&gamedata, &chessBoard);
+    gamedata.close();
     printBoard();
     int status = 0;
     bool maketurn = false;
     turn = ce.getTurn();
     while (1)
     {
-        if (maketurn)
-        {
-            if (turn)
-                turn = 0;
-            else
-                turn = 1;
-        }
-
         COORD source = input(1);
         COORD dest = input(0);
         status = ce.makeMove(source, dest, &chessBoard, NULL);
