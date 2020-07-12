@@ -7,7 +7,6 @@ char m[9][9] = { ' ' };
 MATRIX chessBoard;
 static chessEngine ce;
 
-
 using namespace std;
 
 void update_m()
@@ -18,34 +17,68 @@ void update_m()
             m[i][j] = hashedPieces[chessBoard.m[i][j]];
 }
 
+void switchbg(char* bg)
+{
+    if (*bg == ' ')
+        *bg = 178;
+    else
+        *bg = ' ';
+}
+
 void printBoard()
 {
+    char wh = 178;
+    char bg = 178;
     update_m();
     system("CLS");
-    printf("Capital case for WHITE and small case for BLACK\n   ");
+    //printf("Capital case for WHITE and small case for BLACK\n   ");
+    printf("                                     ");
     for (int i = 1; i <= 8; i++)
-        printf("___%d__", i);
+        printf("   %d   ", i);
     printf("\n   ");
-    for (int i = 1; i <= 8; i++)
-        printf("______");
+    printf("                               ");
+
     for (int j = 1; j <= 8; j++)
     {
+        printf("\n      ");
+        printf("                               ");
+
+        for (int i = 1; i <= 8; i++)
+        {
+            for (int j = 0; j < 7; j++)
+                printf("%c", bg);
+            switchbg(&bg);
+        }
+            
+
         printf("\n   ");
-        for (int i = 1; i <= 8; i++)
-            printf("|     ");
+        printf("                               ");
 
-        printf("|\n");
-        printf("%d--", j);
+        printf("%d  ", j);
 
         for (int i = 1; i <= 8; i++)
-            printf("|  %c  ", m[i][j]);
+        {
+            char ch = m[i][j];
+            if (m[i][j] == ' ')
+                ch = bg;
 
-        printf("|\n   ");
+            printf("%c%c%c%c%c%c%c", bg, bg, bg, ch, bg, bg, bg);
+            switchbg(&bg);
+        }
+
+        printf("\n      ");
+        printf("                               ");
 
         for (int i = 1; i <= 8; i++)
-            printf("|_____");
-        printf("|");
+        {
+            for (int j = 0; j < 7; j++)
+                printf("%c", bg);
+            switchbg(&bg);
+        }
+        switchbg(&bg);
+
     }
+    printf("\n");
 }
 
 void saveGame()
@@ -58,10 +91,12 @@ void saveGame()
 
 COORD input(int sourceInput)
 {
+    printf("\n\n                               ");
+
     if (sourceInput)
-        cout << "\nEnter source coordinates:";
+        cout << "Enter source coordinates:";
     else
-        cout << "\nEnter destination coordinates:";
+        cout << "Enter destination coordinates:";
 
     COORD coord;
     char x, y;
@@ -74,50 +109,49 @@ COORD input(int sourceInput)
     }
     else
     {
-        if (x == 's')
+        switch (x)
+        {
+        case 's':
             saveGame();
 
+        default:
+            cout << "Enter give proper input";
+            return input(sourceInput);
+        }
         return input(sourceInput);
     }
     return coord;
 }
 
-bool notif(int status)
+void notif(int status)
 {
-    bool maketurn = true;
+    printf("\n                               ");
+
     switch (status)
     {
     case NO_PIECE:
         cout << "No piece at the source\n";
-        maketurn = false;
         break;
     case ME_DESTOUTOFBOARD:
         cout << "Destination coords out of board\n";
-        maketurn = false;
         break;
     case ME_SAMECOORDS:
         cout << "Source and dest coords same\n";
-        maketurn = false;
         break;
     case ME_INVALIDMOVE:
         cout << "Invalid Move\n";
-        maketurn = false;
         break;
     case ME_BLOCKEDMOVE:
         cout << "Blocked move";
-        maketurn = false;
         break;
     case ME_SELFCHECK:
         cout << "Selfcheck";
-        maketurn = false;
         break;
     case ME_SELFCHECKMATE:
         cout << "Self checkmate";
-        maketurn = false;
         break;
     case ME_SELFSTALEMATE:
         cout << "Self stalemate";
-        maketurn = false;
         break;
     case CK_CHECK:
         cout << "King under check";
@@ -139,12 +173,10 @@ bool notif(int status)
         break;
     }
 
-    if(turn)
+    if(ce.getTurn())
         cout << "\nTurn: Black\n";
     else
         cout << "\nTurn: White\n";
-
-    return maketurn;
 }
 
 int main()
@@ -155,7 +187,6 @@ int main()
     gamedata.close();
     printBoard();
     int status = 0;
-    bool maketurn = false;
     turn = ce.getTurn();
     while (1)
     {
@@ -163,8 +194,8 @@ int main()
         COORD dest = input(0);
         status = ce.makeMove(source, dest, &chessBoard, NULL);
         
-        printBoard();     
-        maketurn = notif(status);
+        printBoard();  
+        notif(status);
     }
 }
 
