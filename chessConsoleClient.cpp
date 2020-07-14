@@ -27,7 +27,6 @@ void switchbg(char* bg)
 
 void printBoard()
 {
-    char wh = 178;
     char bg = 178;
     update_m();
     system("CLS");
@@ -50,7 +49,6 @@ void printBoard()
             switchbg(&bg);
         }
             
-
         printf("\n   ");
         printf("                               ");
 
@@ -76,7 +74,6 @@ void printBoard()
             switchbg(&bg);
         }
         switchbg(&bg);
-
     }
     printf("\n");
 }
@@ -97,6 +94,8 @@ COORD input(int sourceInput)
         cout << "Enter source coordinates:";
     else
         cout << "Enter destination coordinates:";
+
+    printf("\n                               ");
 
     COORD coord;
     char x, y;
@@ -173,10 +172,12 @@ void notif(int status)
         break;
     }
 
+    printf("\n                               ");
+
     if(ce.getTurn())
-        cout << "\nTurn: Black\n";
+        cout << "Turn: Black";
     else
-        cout << "\nTurn: White\n";
+        cout << "Turn: White";
 }
 
 int main()
@@ -186,6 +187,7 @@ int main()
     int init = ce.gameSetup(&gamedata, &chessBoard);
     gamedata.close();
     printBoard();
+    notif(0);
     int status = 0;
     turn = ce.getTurn();
     while (1)
